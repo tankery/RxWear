@@ -2,12 +2,12 @@ package com.patloew.rxwear;
 
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.wearable.Node;
-import com.google.android.gms.wearable.NodeApi;
-import com.google.android.gms.wearable.Wearable;
+import com.mobvoi.android.common.api.MobvoiApiClient;
+import com.mobvoi.android.common.api.ResultCallback;
+import com.mobvoi.android.common.api.Status;
+import com.mobvoi.android.wearable.Node;
+import com.mobvoi.android.wearable.NodeApi;
+import com.mobvoi.android.wearable.Wearable;
 import com.patloew.rxwear.events.NodeEvent;
 
 import java.util.concurrent.TimeUnit;
@@ -37,7 +37,7 @@ public class NodeListenerObservable extends BaseObservable<NodeEvent> {
     }
 
     @Override
-    protected void onGoogleApiClientReady(GoogleApiClient apiClient, final Subscriber<? super NodeEvent> subscriber) {
+    protected void onMobvoiApiClientReady(MobvoiApiClient apiClient, final Subscriber<? super NodeEvent> subscriber) {
         listener = new NodeApi.NodeListener() {
             @Override
             public void onPeerConnected(Node node) {
@@ -64,7 +64,7 @@ public class NodeListenerObservable extends BaseObservable<NodeEvent> {
 
 
     @Override
-    protected void onUnsubscribed(GoogleApiClient apiClient) {
+    protected void onUnsubscribed(MobvoiApiClient apiClient) {
         Wearable.NodeApi.removeListener(apiClient, listener);
     }
 }

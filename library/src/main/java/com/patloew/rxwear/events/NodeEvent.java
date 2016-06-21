@@ -1,6 +1,6 @@
 package com.patloew.rxwear.events;
 
-import com.google.android.gms.wearable.Node;
+import com.mobvoi.android.wearable.Node;
 
 /* Copyright 2016 Patrick Löwenstein
  *

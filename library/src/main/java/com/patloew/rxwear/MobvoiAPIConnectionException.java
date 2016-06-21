@@ -1,5 +1,7 @@
 package com.patloew.rxwear;
 
+import com.mobvoi.android.common.ConnectionResult;
+
 /* Copyright (C) 2015 Michał Charmas (http://blog.charmas.pl)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +16,23 @@ package com.patloew.rxwear;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class GoogleAPIConnectionSuspendedException extends RuntimeException {
-    private final int cause;
+public class MobvoiAPIConnectionException extends RuntimeException {
+    private final ConnectionResult connectionResult;
 
-    GoogleAPIConnectionSuspendedException(int cause) {
-        this.cause = cause;
+    MobvoiAPIConnectionException(String detailMessage, ConnectionResult connectionResult) {
+        super(detailMessage);
+        this.connectionResult = connectionResult;
     }
 
-    public int getErrorCause() {
-        return cause;
+    public ConnectionResult getConnectionResult() {
+        return connectionResult;
+    }
+
+    public boolean wasResolutionUnsuccessful() {
+        if(connectionResult != null) {
+            return connectionResult.hasResolution();
+        } else {
+            return false;
+        }
     }
 }

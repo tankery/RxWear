@@ -3,13 +3,12 @@ package com.patloew.rxwear;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.common.api.Api;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.Result;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.wearable.Wearable;
+import com.mobvoi.android.common.api.Api;
+import com.mobvoi.android.common.api.MobvoiApiClient;
+import com.mobvoi.android.common.api.PendingResult;
+import com.mobvoi.android.common.api.Result;
+import com.mobvoi.android.common.api.ResultCallback;
+import com.mobvoi.android.wearable.Wearable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -34,15 +33,13 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class BaseRx<T> {
     private final Context ctx;
-    private final Api<? extends Api.ApiOptions.NotRequiredOptions>[] services;
-    private final Scope[] scopes;
+    private final Api[] services;
     private final Long timeoutTime;
     private final TimeUnit timeoutUnit;
 
     protected BaseRx(@NonNull RxWear rxWear, Long timeout, TimeUnit timeUnit) {
         this.ctx = rxWear.getContext();
         this.services = new Api[] {Wearable.API };
-        this.scopes = null;
 
         if(timeout != null && timeUnit != null) {
             this.timeoutTime = timeout;
@@ -53,15 +50,14 @@ public abstract class BaseRx<T> {
         }
     }
 
-    protected BaseRx(@NonNull Context ctx, @NonNull Api<? extends Api.ApiOptions.NotRequiredOptions>[] services, Scope[] scopes) {
+    protected BaseRx(@NonNull Context ctx, @NonNull Api[] services) {
         this.ctx = ctx;
         this.services = services;
-        this.scopes = scopes;
         timeoutTime = null;
         timeoutUnit = null;
     }
 
-    protected final <T extends Result> void setupWearPendingResult(PendingResult<T> pendingResult, ResultCallback<? super T> resultCallback) {
+    protected final <T extends Result> void setupWearPendingResult(PendingResult<T> pendingResult, ResultCallback<T> resultCallback) {
         if(timeoutTime != null && timeoutUnit != null) {
             pendingResult.setResultCallback(resultCallback, timeoutTime, timeoutUnit);
         } else {
@@ -69,42 +65,36 @@ public abstract class BaseRx<T> {
         }
     }
 
-    protected final GoogleApiClient createApiClient(ApiClientConnectionCallbacks apiClientConnectionCallbacks) {
+    protected final MobvoiApiClient createApiClient(ApiClientConnectionCallbacks apiClientConnectionCallbacks) {
 
-        GoogleApiClient.Builder apiClientBuilder = new GoogleApiClient.Builder(ctx);
+        MobvoiApiClient.Builder apiClientBuilder = new MobvoiApiClient.Builder(ctx);
 
 
-        for (Api<? extends Api.ApiOptions.NotRequiredOptions> service : services) {
+        for (Api service : services) {
             apiClientBuilder.addApi(service);
-        }
-
-        if(scopes != null) {
-            for (Scope scope : scopes) {
-                apiClientBuilder.addScope(scope);
-            }
         }
 
         apiClientBuilder.addConnectionCallbacks(apiClientConnectionCallbacks);
         apiClientBuilder.addOnConnectionFailedListener(apiClientConnectionCallbacks);
 
-        GoogleApiClient apiClient = apiClientBuilder.build();
+        MobvoiApiClient apiClient = apiClientBuilder.build();
 
         apiClientConnectionCallbacks.setClient(apiClient);
 
         return apiClient;
     }
 
-    protected void onUnsubscribed(GoogleApiClient locationClient) { }
+    protected void onUnsubscribed(MobvoiApiClient locationClient) { }
 
     protected abstract class ApiClientConnectionCallbacks implements
-            GoogleApiClient.ConnectionCallbacks,
-            GoogleApiClient.OnConnectionFailedListener {
+            MobvoiApiClient.ConnectionCallbacks,
+            MobvoiApiClient.OnConnectionFailedListener {
 
-        protected GoogleApiClient apiClient;
+        protected MobvoiApiClient apiClient;
 
         protected ApiClientConnectionCallbacks() { }
 
-        public void setClient(GoogleApiClient client) {
+        public void setClient(MobvoiApiClient client) {
             this.apiClient = client;
         }
     }

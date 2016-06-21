@@ -1,8 +1,8 @@
 package com.patloew.rxwear.transformers;
 
-import com.google.android.gms.wearable.DataItem;
-import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.DataMapItem;
+import com.mobvoi.android.wearable.DataItem;
+import com.mobvoi.android.wearable.DataMap;
+import com.mobvoi.android.wearable.DataMapItem;
 
 import rx.Observable;
 import rx.functions.Func1;

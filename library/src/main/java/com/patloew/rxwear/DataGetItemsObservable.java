@@ -3,11 +3,11 @@ package com.patloew.rxwear;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.wearable.DataItem;
-import com.google.android.gms.wearable.DataItemBuffer;
-import com.google.android.gms.wearable.Wearable;
+import com.mobvoi.android.common.api.MobvoiApiClient;
+import com.mobvoi.android.common.api.ResultCallback;
+import com.mobvoi.android.wearable.DataItem;
+import com.mobvoi.android.wearable.DataItemBuffer;
+import com.mobvoi.android.wearable.Wearable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -29,16 +29,14 @@ import rx.Subscriber;
 public class DataGetItemsObservable extends BaseObservable<DataItem> {
 
     private final Uri uri;
-    private final Integer filterType;
 
-    DataGetItemsObservable(RxWear rxWear, Uri uri, Integer filterType, Long timeout, TimeUnit timeUnit) {
+    DataGetItemsObservable(RxWear rxWear, Uri uri, Long timeout, TimeUnit timeUnit) {
         super(rxWear, timeout, timeUnit);
         this.uri = uri;
-        this.filterType = filterType;
     }
 
     @Override
-    protected void onGoogleApiClientReady(GoogleApiClient apiClient, final Subscriber<? super DataItem> subscriber) {
+    protected void onMobvoiApiClientReady(MobvoiApiClient apiClient, final Subscriber<? super DataItem> subscriber) {
         ResultCallback<DataItemBuffer> resultCallback = new ResultCallback<DataItemBuffer>() {
             @Override
             public void onResult(@NonNull DataItemBuffer dataItemBuffer) {
@@ -64,11 +62,7 @@ public class DataGetItemsObservable extends BaseObservable<DataItem> {
         if(uri == null) {
             setupWearPendingResult(Wearable.DataApi.getDataItems(apiClient), resultCallback);
         } else {
-            if(filterType == null) {
-                setupWearPendingResult(Wearable.DataApi.getDataItems(apiClient, uri), resultCallback);
-            } else {
-                setupWearPendingResult(Wearable.DataApi.getDataItems(apiClient, uri, filterType), resultCallback);
-            }
+            setupWearPendingResult(Wearable.DataApi.getDataItems(apiClient, uri), resultCallback);
         }
     }
 }

@@ -12,11 +12,12 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.jakewharton.rxbinding.view.RxView;
-import com.patloew.rxwear.GoogleAPIConnectionException;
+import com.patloew.rxwear.MobvoiAPIConnectionException;
 import com.patloew.rxwear.RxWear;
 import com.patloew.rxwear.transformers.DataItemGetDataMap;
 
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,11 +56,13 @@ public class MainActivity extends AppCompatActivity {
                             .putString("title", titleEditText.getText().toString())
                             .putString("message", messageEditText.getText().toString())
                             .toObservable()
-                ).subscribe(requestId -> Snackbar.make(coordinatorLayout, "Sent message", Snackbar.LENGTH_LONG).show(),
+                )
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(requestId -> Snackbar.make(coordinatorLayout, "Sent message", Snackbar.LENGTH_LONG).show(),
                         throwable -> {
                             Log.e("MainActivity", "Error on sending message", throwable);
 
-                            if(throwable instanceof GoogleAPIConnectionException) {
+                            if(throwable instanceof MobvoiAPIConnectionException) {
                                 Snackbar.make(coordinatorLayout, "Android Wear app is not installed", Snackbar.LENGTH_LONG).show();
                             } else {
                                 Snackbar.make(coordinatorLayout, "Could not send message", Snackbar.LENGTH_LONG).show();
@@ -69,12 +72,13 @@ public class MainActivity extends AppCompatActivity {
 
         subscription.add(RxView.clicks(setPersistentButton)
                 .doOnNext(click -> hideKeyboard())
-                .flatMap(click2 -> RxWear.Data.PutDataMap.to("/persistentText").setUrgent().putString("text", persistentEditText.getText().toString()).toObservable())
+                .flatMap(click2 -> RxWear.Data.PutDataMap.to("/persistentText").putString("text", persistentEditText.getText().toString()).toObservable())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(dataItem1 -> Snackbar.make(coordinatorLayout, "Set persistent text", Snackbar.LENGTH_LONG).show(),
                         throwable -> {
                             Log.e("MainActivity", "Error on setting persistent text", throwable);
 
-                            if(throwable instanceof GoogleAPIConnectionException) {
+                            if(throwable instanceof MobvoiAPIConnectionException) {
                                 Snackbar.make(coordinatorLayout, "Android Wear app is not installed", Snackbar.LENGTH_LONG).show();
                             } else {
                                 Snackbar.make(coordinatorLayout, "Could not set persistent text", Snackbar.LENGTH_LONG).show();
@@ -84,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         subscription.add(RxWear.Data.get("/persistentText")
                 .compose(DataItemGetDataMap.noFilter())
                 .map(dataMap -> dataMap.getString("text"))
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(text -> persistentEditText.setText(text)));
     }
 

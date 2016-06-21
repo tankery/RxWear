@@ -1,7 +1,7 @@
 package com.patloew.rxwear.transformers;
 
-import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.MessageEvent;
+import com.mobvoi.android.wearable.DataMap;
+import com.mobvoi.android.wearable.MessageEvent;
 
 import rx.Observable;
 import rx.functions.Func1;

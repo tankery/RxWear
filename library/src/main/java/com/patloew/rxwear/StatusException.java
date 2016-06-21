@@ -1,6 +1,6 @@
 package com.patloew.rxwear;
 
-import com.google.android.gms.common.api.Status;
+import com.mobvoi.android.common.api.Status;
 
 /* Copyright (C) 2015 Michał Charmas (http://blog.charmas.pl)
  *

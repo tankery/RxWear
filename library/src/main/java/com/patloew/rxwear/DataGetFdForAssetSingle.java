@@ -2,12 +2,12 @@ package com.patloew.rxwear;
 
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.wearable.Asset;
-import com.google.android.gms.wearable.DataApi;
-import com.google.android.gms.wearable.DataItemAsset;
-import com.google.android.gms.wearable.Wearable;
+import com.mobvoi.android.common.api.MobvoiApiClient;
+import com.mobvoi.android.common.api.ResultCallback;
+import com.mobvoi.android.wearable.Asset;
+import com.mobvoi.android.wearable.DataApi;
+import com.mobvoi.android.wearable.DataItemAsset;
+import com.mobvoi.android.wearable.Wearable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -38,7 +38,7 @@ public class DataGetFdForAssetSingle extends BaseSingle<DataApi.GetFdForAssetRes
     }
 
     @Override
-    protected void onGoogleApiClientReady(GoogleApiClient apiClient, final SingleSubscriber<? super DataApi.GetFdForAssetResult> subscriber) {
+    protected void onMobvoiApiClientReady(MobvoiApiClient apiClient, final SingleSubscriber<? super DataApi.GetFdForAssetResult> subscriber) {
         ResultCallback<DataApi.GetFdForAssetResult> resultCallback = new ResultCallback<DataApi.GetFdForAssetResult>() {
             @Override
             public void onResult(@NonNull DataApi.GetFdForAssetResult getFdForAssetResult) {

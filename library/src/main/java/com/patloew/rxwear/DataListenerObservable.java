@@ -1,15 +1,14 @@
 package com.patloew.rxwear;
 
-import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.wearable.DataApi;
-import com.google.android.gms.wearable.DataEvent;
-import com.google.android.gms.wearable.DataEventBuffer;
-import com.google.android.gms.wearable.Wearable;
+import com.mobvoi.android.common.api.MobvoiApiClient;
+import com.mobvoi.android.common.api.ResultCallback;
+import com.mobvoi.android.common.api.Status;
+import com.mobvoi.android.wearable.DataApi;
+import com.mobvoi.android.wearable.DataEvent;
+import com.mobvoi.android.wearable.DataEventBuffer;
+import com.mobvoi.android.wearable.Wearable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -30,19 +29,14 @@ import rx.Subscriber;
  * limitations under the License. */
 public class DataListenerObservable extends BaseObservable<DataEvent> {
 
-    private final Uri uri;
-    private final Integer filterType;
-
     private DataApi.DataListener listener;
 
-    DataListenerObservable(RxWear rxWear, Uri uri, Integer filterType, Long timeout, TimeUnit timeUnit) {
+    DataListenerObservable(RxWear rxWear, Long timeout, TimeUnit timeUnit) {
         super(rxWear, timeout, timeUnit);
-        this.uri = uri;
-        this.filterType = filterType;
     }
 
     @Override
-    protected void onGoogleApiClientReady(GoogleApiClient apiClient, final Subscriber<? super DataEvent> subscriber) {
+    protected void onMobvoiApiClientReady(MobvoiApiClient apiClient, final Subscriber<? super DataEvent> subscriber) {
         listener = new DataApi.DataListener() {
             @Override
             public void onDataChanged(DataEventBuffer dataEventBuffer) {
@@ -61,16 +55,12 @@ public class DataListenerObservable extends BaseObservable<DataEvent> {
             }
         };
 
-        if(uri != null && filterType != null) {
-            setupWearPendingResult(Wearable.DataApi.addListener(apiClient, listener, uri, filterType), resultCallback);
-        } else {
-            setupWearPendingResult(Wearable.DataApi.addListener(apiClient, listener), resultCallback);
-        }
+        setupWearPendingResult(Wearable.DataApi.addListener(apiClient, listener), resultCallback);
     }
 
 
     @Override
-    protected void onUnsubscribed(GoogleApiClient apiClient) {
+    protected void onUnsubscribed(MobvoiApiClient apiClient) {
         Wearable.DataApi.removeListener(apiClient, listener);
     }
 }

@@ -4,10 +4,9 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.Api;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.Scope;
+import com.mobvoi.android.common.ConnectionResult;
+import com.mobvoi.android.common.api.Api;
+import com.mobvoi.android.common.api.MobvoiApiClient;
 
 import java.util.concurrent.TimeUnit;
 
@@ -41,13 +40,13 @@ public abstract class BaseSingle<T> extends BaseRx<T> implements Single.OnSubscr
         super(rxWear, timeout, timeUnit);
     }
 
-    protected BaseSingle(@NonNull Context ctx, @NonNull Api<? extends Api.ApiOptions.NotRequiredOptions>[] services, Scope[] scopes) {
-        super(ctx, services, scopes);
+    protected BaseSingle(@NonNull Context ctx, @NonNull Api[] services) {
+        super(ctx, services);
     }
 
     @Override
     public final void call(SingleSubscriber<? super T> subscriber) {
-        final GoogleApiClient apiClient = createApiClient(new ApiClientConnectionCallbacks(subscriber));
+        final MobvoiApiClient apiClient = createApiClient(new ApiClientConnectionCallbacks(subscriber));
 
         try {
             apiClient.connect();
@@ -66,7 +65,7 @@ public abstract class BaseSingle<T> extends BaseRx<T> implements Single.OnSubscr
         }));
     }
 
-    protected abstract void onGoogleApiClientReady(GoogleApiClient apiClient, SingleSubscriber<? super T> subscriber);
+    protected abstract void onMobvoiApiClientReady(MobvoiApiClient apiClient, SingleSubscriber<? super T> subscriber);
 
     protected class ApiClientConnectionCallbacks extends BaseRx.ApiClientConnectionCallbacks {
 
@@ -79,7 +78,7 @@ public abstract class BaseSingle<T> extends BaseRx<T> implements Single.OnSubscr
         @Override
         public void onConnected(Bundle bundle) {
             try {
-                onGoogleApiClientReady(apiClient, subscriber);
+                onMobvoiApiClientReady(apiClient, subscriber);
             } catch (Throwable ex) {
                 subscriber.onError(ex);
             }
@@ -87,12 +86,12 @@ public abstract class BaseSingle<T> extends BaseRx<T> implements Single.OnSubscr
 
         @Override
         public void onConnectionSuspended(int cause) {
-            subscriber.onError(new GoogleAPIConnectionSuspendedException(cause));
+            subscriber.onError(new MobvoiAPIConnectionSuspendedException(cause));
         }
 
         @Override
         public void onConnectionFailed(ConnectionResult connectionResult) {
-            subscriber.onError(new GoogleAPIConnectionException("Error connecting to GoogleApiClient.", connectionResult));
+            subscriber.onError(new MobvoiAPIConnectionException("Error connecting to MobvoiApiClient.", connectionResult));
         }
     }
 }

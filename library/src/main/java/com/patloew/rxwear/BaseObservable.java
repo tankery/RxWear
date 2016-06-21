@@ -3,8 +3,8 @@ package com.patloew.rxwear;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
+import com.mobvoi.android.common.ConnectionResult;
+import com.mobvoi.android.common.api.MobvoiApiClient;
 
 import java.util.concurrent.TimeUnit;
 
@@ -40,7 +40,7 @@ public abstract class BaseObservable<T> extends BaseRx<T> implements Observable.
 
     @Override
     public final void call(Subscriber<? super T> subscriber) {
-        final GoogleApiClient apiClient = createApiClient(new ApiClientConnectionCallbacks(subscriber));
+        final MobvoiApiClient apiClient = createApiClient(new ApiClientConnectionCallbacks(subscriber));
 
         try {
             apiClient.connect();
@@ -59,7 +59,7 @@ public abstract class BaseObservable<T> extends BaseRx<T> implements Observable.
         }));
     }
 
-    protected abstract void onGoogleApiClientReady(GoogleApiClient apiClient, Subscriber<? super T> subscriber);
+    protected abstract void onMobvoiApiClientReady(MobvoiApiClient apiClient, Subscriber<? super T> subscriber);
 
     protected class ApiClientConnectionCallbacks extends BaseRx.ApiClientConnectionCallbacks {
 
@@ -72,7 +72,7 @@ public abstract class BaseObservable<T> extends BaseRx<T> implements Observable.
         @Override
         public void onConnected(Bundle bundle) {
             try {
-                onGoogleApiClientReady(apiClient, subscriber);
+                onMobvoiApiClientReady(apiClient, subscriber);
             } catch (Throwable ex) {
                 subscriber.onError(ex);
             }
@@ -80,12 +80,12 @@ public abstract class BaseObservable<T> extends BaseRx<T> implements Observable.
 
         @Override
         public void onConnectionSuspended(int cause) {
-            subscriber.onError(new GoogleAPIConnectionSuspendedException(cause));
+            subscriber.onError(new MobvoiAPIConnectionSuspendedException(cause));
         }
 
         @Override
         public void onConnectionFailed(ConnectionResult connectionResult) {
-            subscriber.onError(new GoogleAPIConnectionException("Error connecting to GoogleApiClient.", connectionResult));
+            subscriber.onError(new MobvoiAPIConnectionException("Error connecting to MobvoiApiClient.", connectionResult));
         }
     }
 }

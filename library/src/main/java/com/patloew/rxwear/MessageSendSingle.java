@@ -2,10 +2,10 @@ package com.patloew.rxwear;
 
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.wearable.MessageApi;
-import com.google.android.gms.wearable.Wearable;
+import com.mobvoi.android.common.api.MobvoiApiClient;
+import com.mobvoi.android.common.api.ResultCallback;
+import com.mobvoi.android.wearable.MessageApi;
+import com.mobvoi.android.wearable.Wearable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -38,7 +38,7 @@ public class MessageSendSingle extends BaseSingle<Integer> {
     }
 
     @Override
-    protected void onGoogleApiClientReady(GoogleApiClient apiClient, final SingleSubscriber<? super Integer> subscriber) {
+    protected void onMobvoiApiClientReady(MobvoiApiClient apiClient, final SingleSubscriber<? super Integer> subscriber) {
         setupWearPendingResult(Wearable.MessageApi.sendMessage(apiClient, nodeId, path, data), new ResultCallback<MessageApi.SendMessageResult>() {
             @Override
             public void onResult(@NonNull MessageApi.SendMessageResult sendMessageResult) {

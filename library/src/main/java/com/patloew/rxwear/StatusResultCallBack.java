@@ -2,8 +2,8 @@ package com.patloew.rxwear;
 
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
+import com.mobvoi.android.common.api.ResultCallback;
+import com.mobvoi.android.common.api.Status;
 
 import rx.SingleSubscriber;
 

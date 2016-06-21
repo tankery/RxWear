@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/patloew/RxWear.svg?branch=master)](https://travis-ci.org/patloew/RxWear)  [ ![Download](https://api.bintray.com/packages/patloew/maven/RxWear/images/download.svg) ](https://bintray.com/patloew/maven/RxWear/_latestVersion) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-RxWear-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/3271) [![API](https://img.shields.io/badge/API-9%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=9)
 
-This library wraps the Wearable API in [RxJava](https://github.com/ReactiveX/RxJava) Observables and Singles. No more managing GoogleApiClients! Also, there are some helper classes, which ease communication between phone and wear app.
+This library wraps the Wearable API in [RxJava](https://github.com/ReactiveX/RxJava) Observables and Singles. No more managing MobvoiApiClients! Also, there are some helper classes, which ease communication between phone and wear app.
 
 # Usage
 
@@ -62,13 +62,13 @@ RxWear.Data.listen("/serializable", DataApi.FILTER_LITERAL)
 
 An optional global default timeout for all Wearable API requests made through the library can be set via `RxWear.setDefaultTimeout(...)`. In addition, timeouts can be set when creating a new Observable by providing timeout parameters, e.g. `RxWear.Message.send(nodeId, path, data, 15, TimeUnit.SECONDS)`. These parameters override the default timeout. When a timeout occurs, a StatusException is provided via `onError()`. The timeouts specified here are only used for calls to the Wearable API, e.g. a timeout will not occur when a listener does not emit an item within the specified timeout. The RxJava timeout operators can be used for this use case.
 
-You can also obtain a `Single<GoogleApiClient>`, which connects on subscribe and disconnects on unsubscribe via `GoogleAPIClientSingle.create(...)`.
+You can also obtain a `Single<MobvoiApiClient>`, which connects on subscribe and disconnects on unsubscribe via `GoogleAPIClientSingle.create(...)`.
 
 The following Exceptions are thrown in the lib and provided via `onError()`:
 
 * `StatusException`: When the call to the Wearable API was not successful or timed out
 * `GoogleAPIConnectionException`: When connecting to the GoogleAPIClient was not successful.
-* `GoogleAPIConnectionSuspendedException`: When the GoogleApiClient connection was suspended.
+* `GoogleAPIConnectionSuspendedException`: When the MobvoiApiClient connection was suspended.
 
 # Sample
 
@@ -84,7 +84,7 @@ The lib is available on jCenter. Add the following to your `build.gradle`:
 
 # Credits
 
-The code for managing the GoogleApiClient is taken from the [Android-ReactiveLocation](https://github.com/mcharmas/Android-ReactiveLocation) library by Michał Charmas, which is licensed under the Apache License, Version 2.0.
+The code for managing the MobvoiApiClient is taken from the [Android-ReactiveLocation](https://github.com/mcharmas/Android-ReactiveLocation) library by Michał Charmas, which is licensed under the Apache License, Version 2.0.
 
 # License
 

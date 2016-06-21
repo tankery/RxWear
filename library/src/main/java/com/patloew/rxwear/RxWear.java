@@ -4,32 +4,26 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.wearable.Asset;
-import com.google.android.gms.wearable.CapabilityInfo;
-import com.google.android.gms.wearable.DataApi;
-import com.google.android.gms.wearable.DataEvent;
-import com.google.android.gms.wearable.DataItem;
-import com.google.android.gms.wearable.DataItemAsset;
-import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.DataMapItem;
-import com.google.android.gms.wearable.MessageEvent;
-import com.google.android.gms.wearable.PutDataMapRequest;
-import com.google.android.gms.wearable.PutDataRequest;
-import com.google.android.gms.wearable.Wearable;
-import com.patloew.rxwear.events.ChannelEvent;
+import com.mobvoi.android.common.api.MobvoiApiClient;
+import com.mobvoi.android.wearable.Asset;
+import com.mobvoi.android.wearable.DataApi;
+import com.mobvoi.android.wearable.DataEvent;
+import com.mobvoi.android.wearable.DataItem;
+import com.mobvoi.android.wearable.DataItemAsset;
+import com.mobvoi.android.wearable.DataMap;
+import com.mobvoi.android.wearable.DataMapItem;
+import com.mobvoi.android.wearable.MessageEvent;
+import com.mobvoi.android.wearable.PutDataMapRequest;
+import com.mobvoi.android.wearable.PutDataRequest;
+import com.mobvoi.android.wearable.Wearable;
 import com.patloew.rxwear.events.NodeEvent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import rx.Completable;
@@ -125,225 +119,8 @@ public class RxWear {
         return Completable.fromSingle(getWearableClient());
     }
 
-    public static Single<GoogleApiClient> getWearableClient() {
-        return GoogleAPIClientSingle.create(RxWear.get().getContext(), Wearable.API);
-    }
-
-    public static class Capability {
-
-        private Capability() { }
-
-        // listen
-
-        public static Observable<CapabilityInfo> listen(@NonNull String capability) {
-            return listenInternal(capability, null, null, null, null);
-        }
-
-        public static Observable<CapabilityInfo> listen(@NonNull String capability, long timeout, @NonNull TimeUnit timeUnit) {
-            return listenInternal(capability, null, null, timeout, timeUnit);
-        }
-
-        public static Observable<CapabilityInfo> listen(@NonNull Uri uri, int filterType) {
-            return listenInternal(null, uri, filterType, null, null);
-        }
-
-        public static Observable<CapabilityInfo> listen(@NonNull Uri uri, int filterType, long timeout, @NonNull TimeUnit timeUnit) {
-            return listenInternal(null, uri, filterType, timeout, timeUnit);
-        }
-
-        private static Observable<CapabilityInfo> listenInternal(String capability, Uri uri, Integer filterType, Long timeout, TimeUnit timeUnit) {
-            return Observable.create(new CapabilityListenerObservable(RxWear.get(), capability, uri, filterType, timeout, timeUnit));
-        }
-
-        // getAll
-
-        public static Observable<CapabilityInfo> getAll(int nodeFilter) {
-            return getAllInternal(nodeFilter, null, null);
-        }
-
-        public static Observable<CapabilityInfo> getAll(int nodeFilter, long timeout, @NonNull TimeUnit timeUnit) {
-            return getAllInternal(nodeFilter, timeout, timeUnit);
-        }
-
-        private static Observable<CapabilityInfo> getAllInternal(int nodeFilter, Long timeout, TimeUnit timeUnit) {
-            return Single.create(new CapabilityGetAllSingle(RxWear.get(), nodeFilter, timeout, timeUnit))
-                    .flatMapObservable(new Func1<Map<String, CapabilityInfo>, Observable<CapabilityInfo>>() {
-                        @Override
-                        public Observable<CapabilityInfo> call(Map<String, CapabilityInfo> capabilityInfoMap) {
-                            return Observable.from(capabilityInfoMap.values());
-                        }
-                    });
-        }
-
-        // get
-
-        public static Single<CapabilityInfo> get(@NonNull String capability, int nodeFilter) {
-            return getInternal(capability, nodeFilter, null, null);
-        }
-
-        public static Single<CapabilityInfo> get(@NonNull String capability, int nodeFilter, long timeout, @NonNull TimeUnit timeUnit) {
-            return getInternal(capability, nodeFilter, timeout, timeUnit);
-        }
-
-        private static Single<CapabilityInfo> getInternal(String capability, int nodeFilter, Long timeout, TimeUnit timeUnit) {
-            return Single.create(new CapabilityGetSingle(RxWear.get(), capability, nodeFilter, timeout, timeUnit));
-        }
-
-        // addLocal
-
-        public static Single<Status> addLocal(@NonNull String capability) {
-            return addLocalInternal(capability, null, null);
-        }
-
-        public static Single<Status> addLocal(@NonNull String capability, long timeout, @NonNull TimeUnit timeUnit) {
-            return addLocalInternal(capability, timeout, timeUnit);
-        }
-
-        private static Single<Status> addLocalInternal(String capability, Long timeout, TimeUnit timeUnit) {
-            return Single.create(new CapabilityAddLocalSingle(RxWear.get(), capability, timeout, timeUnit));
-        }
-
-        // removeLocal
-
-        public static Single<Status> removeLocal(@NonNull String capability) {
-            return removeLocalInternal(capability, null, null);
-        }
-
-        public static Single<Status> removeLocal(@NonNull String capability, long timeout, @NonNull TimeUnit timeUnit) {
-            return removeLocalInternal(capability, timeout, timeUnit);
-        }
-
-        private static Single<Status> removeLocalInternal(String capability, Long timeout, TimeUnit timeUnit) {
-            return Single.create(new CapabilityRemoveLocalSingle(RxWear.get(), capability, timeout, timeUnit));
-        }
-    }
-
-
-    public static class Channel {
-
-        private Channel() { }
-
-        // listen
-
-        public static Observable<ChannelEvent> listen() {
-            return listenInternal(null, null, null);
-        }
-
-        public static Observable<ChannelEvent> listen(long timeout, @NonNull TimeUnit timeUnit) {
-            return listenInternal(null, timeout, timeUnit);
-        }
-
-        public static Observable<ChannelEvent> listen(@NonNull com.google.android.gms.wearable.Channel channel) {
-            return listenInternal(channel, null, null);
-        }
-
-        public static Observable<ChannelEvent> listen(@NonNull com.google.android.gms.wearable.Channel channel, long timeout, @NonNull TimeUnit timeUnit) {
-            return listenInternal(channel, timeout, timeUnit);
-        }
-
-        private static Observable<ChannelEvent> listenInternal(com.google.android.gms.wearable.Channel channel, Long timeout, TimeUnit timeUnit) {
-            return Observable.create(new ChannelListenerObservable(RxWear.get(), channel, timeout, timeUnit));
-        }
-
-        // close
-
-        public static Single<Status> close(@NonNull com.google.android.gms.wearable.Channel channel) {
-            return closeInternal(channel, null, null, null);
-        }
-
-        public static Single<Status> close(@NonNull com.google.android.gms.wearable.Channel channel, long timeout, @NonNull TimeUnit timeUnit) {
-            return closeInternal(channel, null, timeout, timeUnit);
-        }
-
-        public static Single<Status> close(@NonNull com.google.android.gms.wearable.Channel channel, int errorCode) {
-            return closeInternal(channel, errorCode, null, null);
-        }
-
-        public static Single<Status> close(@NonNull com.google.android.gms.wearable.Channel channel, int errorCode, long timeout, @NonNull TimeUnit timeUnit) {
-            return closeInternal(channel, errorCode, timeout, timeUnit);
-        }
-
-        private static Single<Status> closeInternal(com.google.android.gms.wearable.Channel channel, Integer errorCode, Long timeout, TimeUnit timeUnit) {
-            return Single.create(new ChannelCloseSingle(RxWear.get(), channel, errorCode, timeout, timeUnit));
-        }
-
-        // sendFile
-
-        public static Single<Status> sendFile(@NonNull com.google.android.gms.wearable.Channel channel, @NonNull Uri uri) {
-            return sendFileInternal(channel, uri, null, null, null, null);
-        }
-
-        public static Single<Status> sendFile(@NonNull com.google.android.gms.wearable.Channel channel, @NonNull Uri uri, long timeout, @NonNull TimeUnit timeUnit) {
-            return sendFileInternal(channel, uri, null, null, timeout, timeUnit);
-        }
-
-        public static Single<Status> sendFile(@NonNull com.google.android.gms.wearable.Channel channel, @NonNull Uri uri, long startOffset, long length) {
-            return sendFileInternal(channel, uri, startOffset, length, null, null);
-        }
-
-        public static Single<Status> sendFile(@NonNull com.google.android.gms.wearable.Channel channel, @NonNull Uri uri, long startOffset, long length, long timeout, @NonNull TimeUnit timeUnit) {
-            return sendFileInternal(channel, uri, startOffset, length, timeout, timeUnit);
-        }
-
-        private static Single<Status> sendFileInternal(com.google.android.gms.wearable.Channel channel, Uri uri, Long startOffset, Long length, Long timeout, TimeUnit timeUnit) {
-            return Single.create(new ChannelSendFileSingle(RxWear.get(), channel, uri, startOffset, length, timeout, timeUnit));
-        }
-
-        // receiveFile
-
-        public static Single<Status> receiveFile(@NonNull com.google.android.gms.wearable.Channel channel, @NonNull Uri uri, boolean append) {
-            return receiveFileInternal(channel, uri, append, null, null);
-        }
-
-        public static Single<Status> receiveFile(@NonNull com.google.android.gms.wearable.Channel channel, @NonNull Uri uri, boolean append, long timeout, @NonNull TimeUnit timeUnit) {
-            return receiveFileInternal(channel, uri, append, timeout, timeUnit);
-        }
-
-        private static Single<Status> receiveFileInternal(com.google.android.gms.wearable.Channel channel, Uri uri, boolean append, Long timeout, TimeUnit timeUnit) {
-            return Single.create(new ChannelReceiveFileSingle(RxWear.get(), channel, uri, append, timeout, timeUnit));
-        }
-
-        // getInputStream
-
-        public static Single<InputStream> getInputStream(@NonNull com.google.android.gms.wearable.Channel channel) {
-            return getInputStreamInternal(channel, null, null);
-        }
-
-        public static Single<InputStream> getInputStream(@NonNull com.google.android.gms.wearable.Channel channel, long timeout, @NonNull TimeUnit timeUnit) {
-            return getInputStreamInternal(channel, timeout, timeUnit);
-        }
-
-        private static Single<InputStream> getInputStreamInternal(com.google.android.gms.wearable.Channel channel, Long timeout, TimeUnit timeUnit) {
-            return Single.create(new ChannelGetInputStreamSingle(RxWear.get(), channel, timeout, timeUnit));
-        }
-
-        // getOutputStream
-
-        public static Single<OutputStream> getOutputStream(@NonNull com.google.android.gms.wearable.Channel channel) {
-            return getOutputStreamInternal(channel, null, null);
-        }
-
-        public static Single<OutputStream> getOutputStream(@NonNull com.google.android.gms.wearable.Channel channel, long timeout, @NonNull TimeUnit timeUnit) {
-            return getOutputStreamInternal(channel, timeout, timeUnit);
-        }
-
-        private static Single<OutputStream> getOutputStreamInternal(com.google.android.gms.wearable.Channel channel, Long timeout, TimeUnit timeUnit) {
-            return Single.create(new ChannelGetOutputStreamSingle(RxWear.get(), channel, timeout, timeUnit));
-        }
-
-        // open
-
-        public static Single<com.google.android.gms.wearable.Channel> open(@NonNull String nodeId, @NonNull String path) {
-            return openInternal(nodeId, path, null, null);
-        }
-
-        public static Single<com.google.android.gms.wearable.Channel> open(@NonNull String nodeId, @NonNull String path, long timeout, @NonNull TimeUnit timeUnit) {
-            return openInternal(nodeId, path, timeout, timeUnit);
-        }
-
-        private static Single<com.google.android.gms.wearable.Channel> openInternal(String nodeId, String path, Long timeout, TimeUnit timeUnit) {
-            return Single.create(new ChannelOpenSingle(RxWear.get(), nodeId, path, timeout, timeUnit));
-        }
+    public static Single<MobvoiApiClient> getWearableClient() {
+        return MobvoiAPIClientSingle.create(RxWear.get().getContext(), Wearable.API);
     }
 
     public static class Data {
@@ -353,53 +130,29 @@ public class RxWear {
         // listen
 
         public static Observable<DataEvent> listen() {
-            return listenInternal(null, null, null, null);
+            return listenInternal(null, null);
         }
 
         public static Observable<DataEvent> listen(long timeout, @NonNull TimeUnit timeUnit) {
-            return listenInternal(null, null, timeout, timeUnit);
+            return listenInternal(timeout, timeUnit);
         }
 
-        public static Observable<DataEvent> listen(@NonNull Uri uri, int filterType) {
-            return listenInternal(uri, filterType, null, null);
-        }
-
-        public static Observable<DataEvent> listen(@NonNull Uri uri, int filterType, long timeout, @NonNull TimeUnit timeUnit) {
-            return listenInternal(uri, filterType, timeout, timeUnit);
-        }
-
-        public static Observable<DataEvent> listen(@NonNull String path, int filterType) {
-            return listenInternal(new Uri.Builder().scheme(PutDataRequest.WEAR_URI_SCHEME).path(path).build(), filterType, null, null);
-        }
-
-        public static Observable<DataEvent> listen(@NonNull String path, int filterType, long timeout, @NonNull TimeUnit timeUnit) {
-            return listenInternal(new Uri.Builder().scheme(PutDataRequest.WEAR_URI_SCHEME).path(path).build(), filterType, timeout, timeUnit);
-        }
-
-        private static Observable<DataEvent> listenInternal(Uri uri, Integer filterType, Long timeout, TimeUnit timeUnit) {
-            return Observable.create(new DataListenerObservable(RxWear.get(), uri, filterType, timeout, timeUnit));
+        private static Observable<DataEvent> listenInternal(Long timeout, TimeUnit timeUnit) {
+            return Observable.create(new DataListenerObservable(RxWear.get(), timeout, timeUnit));
         }
 
         // delete
 
         public static Single<Integer> delete(@NonNull Uri uri) {
-            return deleteInternal(uri, null, null, null);
+            return deleteInternal(uri, null, null);
         }
 
         public static Single<Integer> delete(@NonNull Uri uri, @NonNull Long timeout, @NonNull TimeUnit timeUnit) {
-            return deleteInternal(uri, null, timeout, timeUnit);
+            return deleteInternal(uri, timeout, timeUnit);
         }
 
-        public static Single<Integer> delete(@NonNull Uri uri, int filterType) {
-            return deleteInternal(uri, filterType, null, null);
-        }
-
-        public static Single<Integer> delete(@NonNull Uri uri, int filterType, long timeout, @NonNull TimeUnit timeUnit) {
-            return deleteInternal(uri, filterType, timeout, timeUnit);
-        }
-
-        private static Single<Integer> deleteInternal(Uri uri, Integer filterType, Long timeout, TimeUnit timeUnit) {
-            return Single.create(new DataDeleteItemsSingle(RxWear.get(), uri, filterType, timeout, timeUnit));
+        private static Single<Integer> deleteInternal(Uri uri, Long timeout, TimeUnit timeUnit) {
+            return Single.create(new DataDeleteItemsSingle(RxWear.get(), uri, timeout, timeUnit));
         }
 
         // put
@@ -424,69 +177,34 @@ public class RxWear {
             return Single.create(new DataPutItemSingle(RxWear.get(), putDataRequest, timeout, timeUnit));
         }
 
-
-        // getSingle
-
-        @Deprecated
-        // use get() instead
-        public static Single<DataItem> getSingle(@NonNull Uri uri) {
-            return getSingleInternal(uri, null, null);
-        }
-
-        @Deprecated
-        // use get() instead
-        public static Single<DataItem> getSingle(@NonNull Uri uri, long timeout, @NonNull TimeUnit timeUnit) {
-            return getSingleInternal(uri, timeout, timeUnit);
-        }
-
-        private static Single<DataItem> getSingleInternal(Uri uri, Long timeout, TimeUnit timeUnit) {
-            return Single.create(new DataGetItemSingle(RxWear.get(), uri, timeout, timeUnit));
-        }
-
         // get
 
-        public static Observable<DataItem> get(@NonNull Uri uri, int filterType) {
-            return getInternal(uri, filterType, null, null);
-        }
-
-        public static Observable<DataItem> get(@NonNull Uri uri, int filterType, long timeout, @NonNull TimeUnit timeUnit) {
-            return getInternal(uri, filterType, timeout, timeUnit);
-        }
-
-        public static Observable<DataItem> get(@NonNull String path, int filterType) {
-            return getInternal(new Uri.Builder().scheme(PutDataRequest.WEAR_URI_SCHEME).path(path).build(), filterType, null, null);
-        }
-
-        public static Observable<DataItem> get(@NonNull String path, int filterType, long timeout, @NonNull TimeUnit timeUnit) {
-            return getInternal(new Uri.Builder().scheme(PutDataRequest.WEAR_URI_SCHEME).path(path).build(), filterType, timeout, timeUnit);
-        }
-
         public static Observable<DataItem> get(@NonNull Uri uri) {
-            return getInternal(uri, null, null, null);
+            return getInternal(uri, null, null);
         }
 
         public static Observable<DataItem> get(@NonNull Uri uri, long timeout, @NonNull TimeUnit timeUnit) {
-            return getInternal(uri, null, timeout, timeUnit);
+            return getInternal(uri, timeout, timeUnit);
         }
 
         public static Observable<DataItem> get(@NonNull String path) {
-            return getInternal(new Uri.Builder().scheme(PutDataRequest.WEAR_URI_SCHEME).path(path).build(), null, null, null);
+            return getInternal(new Uri.Builder().scheme(PutDataRequest.WEAR_URI_SCHEME).path(path).build(), null, null);
         }
 
         public static Observable<DataItem> get(@NonNull String path, long timeout, @NonNull TimeUnit timeUnit) {
-            return getInternal(new Uri.Builder().scheme(PutDataRequest.WEAR_URI_SCHEME).path(path).build(), null, timeout, timeUnit);
+            return getInternal(new Uri.Builder().scheme(PutDataRequest.WEAR_URI_SCHEME).path(path).build(), timeout, timeUnit);
         }
 
         public static Observable<DataItem> get() {
-            return getInternal(null, null, null, null);
+            return getInternal(null, null, null);
         }
 
         public static Observable<DataItem> get(long timeout, @NonNull TimeUnit timeUnit) {
-            return getInternal(null, null, timeout, timeUnit);
+            return getInternal(null, timeout, timeUnit);
         }
 
-        private static Observable<DataItem> getInternal(Uri uri, Integer filterType, Long timeout, TimeUnit timeUnit) {
-            return Observable.create(new DataGetItemsObservable(RxWear.get(), uri, filterType, timeout, timeUnit));
+        private static Observable<DataItem> getInternal(Uri uri, Long timeout, TimeUnit timeUnit) {
+            return Observable.create(new DataGetItemsObservable(RxWear.get(), uri, timeout, timeUnit));
         }
 
         // getFdForAsset
@@ -528,24 +246,12 @@ public class RxWear {
                 return createSingle(PutDataRequest.createFromDataItem(dataItem), serializable);
             }
 
-            public static Single<DataItem> urgentWithDataItem(DataItem dataItem, Serializable serializable) {
-                return createSingle(PutDataRequest.createFromDataItem(dataItem).setUrgent(), serializable);
-            }
-
             public static Single<DataItem> withAutoAppendedId(String pathPrefix, Serializable serializable) {
                 return createSingle(PutDataRequest.createWithAutoAppendedId(pathPrefix), serializable);
             }
 
-            public static Single<DataItem> urgentWithAutoAppendedId(String pathPrefix, Serializable serializable) {
-                return createSingle(PutDataRequest.createWithAutoAppendedId(pathPrefix).setUrgent(), serializable);
-            }
-
             public static Single<DataItem> to(String path, Serializable serializable) {
                 return createSingle(PutDataRequest.create(path), serializable);
-            }
-
-            public static Single<DataItem> urgentTo(String path, Serializable serializable) {
-                return createSingle(PutDataRequest.create(path).setUrgent(), serializable);
             }
 
             private static Single<DataItem> createSingle(PutDataRequest request, Serializable serializable) {
@@ -596,11 +302,6 @@ public class RxWear {
 
             public static PutDataMap to(String path) {
                 return new PutDataMap(path, null, null);
-            }
-
-            public PutDataMap setUrgent() {
-                request.setUrgent();
-                return this;
             }
 
             public PutDataMap putAll(DataMap dataMap) {
@@ -706,31 +407,15 @@ public class RxWear {
         // listen
 
         public static Observable<MessageEvent> listen() {
-            return listenInternal(null, null, null, null);
+            return listenInternal(null, null);
         }
 
         public static Observable<MessageEvent> listen(@NonNull Long timeout, @NonNull TimeUnit timeUnit) {
-            return listenInternal(null, null, timeout, timeUnit);
+            return listenInternal(timeout, timeUnit);
         }
 
-        public static Observable<MessageEvent> listen(@NonNull Uri uri, int filterType) {
-            return listenInternal(uri, filterType, null, null);
-        }
-
-        public static Observable<MessageEvent> listen(@NonNull Uri uri, int filterType, long timeout, @NonNull TimeUnit timeUnit) {
-            return listenInternal(uri, filterType, timeout, timeUnit);
-        }
-
-        public static Observable<MessageEvent> listen(@NonNull String path, int filterType) {
-            return listenInternal(new Uri.Builder().scheme(PutDataRequest.WEAR_URI_SCHEME).path(path).build(), filterType, null, null);
-        }
-
-        public static Observable<MessageEvent> listen(@NonNull String path, int filterType, long timeout, @NonNull TimeUnit timeUnit) {
-            return listenInternal(new Uri.Builder().scheme(PutDataRequest.WEAR_URI_SCHEME).path(path).build(), filterType, timeout, timeUnit);
-        }
-
-        private static Observable<MessageEvent> listenInternal(Uri uri, Integer filterType, Long timeout, TimeUnit timeUnit) {
-            return Observable.create(new MessageListenerObservable(RxWear.get(), uri, filterType, timeout, timeUnit));
+        private static Observable<MessageEvent> listenInternal(Long timeout, TimeUnit timeUnit) {
+            return Observable.create(new MessageListenerObservable(RxWear.get(), timeout, timeUnit));
         }
 
         // send
@@ -758,9 +443,9 @@ public class RxWear {
         }
 
         private static Observable<Integer> sendToAllRemoteNodesInternal(final String path, final byte[] data, final Long timeout, final TimeUnit timeUnit) {
-            return Node.getConnectedNodesInternal(timeout, timeUnit).flatMap(new Func1<com.google.android.gms.wearable.Node, Observable<Integer>>() {
+            return Node.getConnectedNodesInternal(timeout, timeUnit).flatMap(new Func1<com.mobvoi.android.wearable.Node, Observable<Integer>>() {
                 @Override
-                public Observable<Integer> call(com.google.android.gms.wearable.Node node) {
+                public Observable<Integer> call(com.mobvoi.android.wearable.Node node) {
                     return sendInternal(node.getId(), path, data, timeout, timeUnit).toObservable();
                 }
             });
@@ -956,18 +641,18 @@ public class RxWear {
 
         // getConnectedNodes
 
-        public static Observable<com.google.android.gms.wearable.Node> getConnectedNodes() {
+        public static Observable<com.mobvoi.android.wearable.Node> getConnectedNodes() {
             return getConnectedNodesInternal(null, null);
         }
 
-        public static Observable<com.google.android.gms.wearable.Node> getConnectedNodes(long timeout, @NonNull TimeUnit timeUnit) {
+        public static Observable<com.mobvoi.android.wearable.Node> getConnectedNodes(long timeout, @NonNull TimeUnit timeUnit) {
             return getConnectedNodesInternal(timeout, timeUnit);
         }
 
-        private static Observable<com.google.android.gms.wearable.Node> getConnectedNodesInternal(Long timeout, TimeUnit timeUnit) {
-            return Single.create(new NodeGetConnectedSingle(RxWear.get(), timeout, timeUnit)).flatMapObservable(new Func1<List<com.google.android.gms.wearable.Node>, Observable<com.google.android.gms.wearable.Node>>() {
+        private static Observable<com.mobvoi.android.wearable.Node> getConnectedNodesInternal(Long timeout, TimeUnit timeUnit) {
+            return Single.create(new NodeGetConnectedSingle(RxWear.get(), timeout, timeUnit)).flatMapObservable(new Func1<List<com.mobvoi.android.wearable.Node>, Observable<com.mobvoi.android.wearable.Node>>() {
                 @Override
-                public Observable<com.google.android.gms.wearable.Node> call(List<com.google.android.gms.wearable.Node> nodes) {
+                public Observable<com.mobvoi.android.wearable.Node> call(List<com.mobvoi.android.wearable.Node> nodes) {
                     return Observable.from(nodes);
                 }
             });
@@ -975,15 +660,15 @@ public class RxWear {
 
         // getLocalNode
 
-        public static Single<com.google.android.gms.wearable.Node> getLocalNode() {
+        public static Single<com.mobvoi.android.wearable.Node> getLocalNode() {
             return getLocalNodeInternal(null, null);
         }
 
-        public static Single<com.google.android.gms.wearable.Node> getLocalNode(long timeout, @NonNull TimeUnit timeUnit) {
+        public static Single<com.mobvoi.android.wearable.Node> getLocalNode(long timeout, @NonNull TimeUnit timeUnit) {
             return getLocalNodeInternal(timeout, timeUnit);
         }
 
-        private static Single<com.google.android.gms.wearable.Node> getLocalNodeInternal(Long timeout, TimeUnit timeUnit) {
+        private static Single<com.mobvoi.android.wearable.Node> getLocalNodeInternal(Long timeout, TimeUnit timeUnit) {
             return Single.create(new NodeGetLocalSingle(RxWear.get(), timeout, timeUnit));
         }
 

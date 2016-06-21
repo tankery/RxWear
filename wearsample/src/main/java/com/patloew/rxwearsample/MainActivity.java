@@ -6,15 +6,14 @@ import android.support.wearable.view.BoxInsetLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.wearable.DataApi;
-import com.google.android.gms.wearable.DataEvent;
-import com.google.android.gms.wearable.MessageApi;
+import com.mobvoi.android.wearable.DataEvent;
 import com.patloew.rxwear.RxWear;
 import com.patloew.rxwear.transformers.DataEventGetDataMap;
 import com.patloew.rxwear.transformers.DataItemGetDataMap;
 import com.patloew.rxwear.transformers.MessageEventGetDataMap;
 
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
 public class MainActivity extends WearableActivity {
@@ -39,8 +38,10 @@ public class MainActivity extends WearableActivity {
 
         RxWear.init(this);
 
-        subscription.add(RxWear.Message.listen("/message", MessageApi.FILTER_LITERAL)
+        subscription.add(RxWear.Message.listen()
+                .filter(event -> "/message".equals(event.getPath()))
                 .compose(MessageEventGetDataMap.noFilter())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(dataMap -> {
                     mTitleText.setText(dataMap.getString("title", getString(R.string.no_message)));
                     mMessageText.setText(dataMap.getString("message", getString(R.string.no_message_info)));
@@ -49,10 +50,14 @@ public class MainActivity extends WearableActivity {
         subscription.add(
                 Observable.concat(
                         RxWear.Data.get("/persistentText").compose(DataItemGetDataMap.noFilter()),
-                        RxWear.Data.listen("/persistentText", DataApi.FILTER_LITERAL).compose(DataEventGetDataMap.filterByType(DataEvent.TYPE_CHANGED))
-                ).map(dataMap -> dataMap.getString("text"))
-                .subscribe(text -> mPersistentText.setText(text),
-                        throwable -> Toast.makeText(this, "Error on data listen", Toast.LENGTH_LONG))
+                        RxWear.Data.listen()
+                                .filter(event -> "/persistentText".equals(event.getDataItem().getUri().getPath()))
+                                .compose(DataEventGetDataMap.filterByType(DataEvent.TYPE_CHANGED))
+                )
+                        .map(dataMap -> dataMap.getString("text"))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(text -> mPersistentText.setText(text),
+                                throwable -> Toast.makeText(this, "Error on data listen", Toast.LENGTH_LONG))
         );
     }
 

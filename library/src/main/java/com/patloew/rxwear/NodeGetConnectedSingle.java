@@ -2,11 +2,11 @@ package com.patloew.rxwear;
 
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.wearable.Node;
-import com.google.android.gms.wearable.NodeApi;
-import com.google.android.gms.wearable.Wearable;
+import com.mobvoi.android.common.api.MobvoiApiClient;
+import com.mobvoi.android.common.api.ResultCallback;
+import com.mobvoi.android.wearable.Node;
+import com.mobvoi.android.wearable.NodeApi;
+import com.mobvoi.android.wearable.Wearable;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +33,7 @@ public class NodeGetConnectedSingle extends BaseSingle<List<Node>> {
     }
 
     @Override
-    protected void onGoogleApiClientReady(GoogleApiClient apiClient, final SingleSubscriber<? super List<Node>> subscriber) {
+    protected void onMobvoiApiClientReady(MobvoiApiClient apiClient, final SingleSubscriber<? super List<Node>> subscriber) {
         setupWearPendingResult(Wearable.NodeApi.getConnectedNodes(apiClient), new ResultCallback<NodeApi.GetConnectedNodesResult>() {
             @Override
             public void onResult(@NonNull NodeApi.GetConnectedNodesResult getConnectedNodesResult) {

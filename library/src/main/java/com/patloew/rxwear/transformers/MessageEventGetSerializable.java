@@ -1,6 +1,6 @@
 package com.patloew.rxwear.transformers;
 
-import com.google.android.gms.wearable.MessageEvent;
+import com.mobvoi.android.wearable.MessageEvent;
 
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;

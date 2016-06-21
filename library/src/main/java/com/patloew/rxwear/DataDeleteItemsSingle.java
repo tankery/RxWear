@@ -3,10 +3,10 @@ package com.patloew.rxwear;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.wearable.DataApi;
-import com.google.android.gms.wearable.Wearable;
+import com.mobvoi.android.common.api.MobvoiApiClient;
+import com.mobvoi.android.common.api.ResultCallback;
+import com.mobvoi.android.wearable.DataApi;
+import com.mobvoi.android.wearable.Wearable;
 
 import java.util.concurrent.TimeUnit;
 
@@ -28,16 +28,14 @@ import rx.SingleSubscriber;
 public class DataDeleteItemsSingle extends BaseSingle<Integer> {
 
     private final Uri uri;
-    private final Integer filterType;
 
-    DataDeleteItemsSingle(RxWear rxWear, Uri uri, Integer filterType, Long timeout, TimeUnit timeUnit) {
+    DataDeleteItemsSingle(RxWear rxWear, Uri uri, Long timeout, TimeUnit timeUnit) {
         super(rxWear, timeout, timeUnit);
         this.uri = uri;
-        this.filterType = filterType;
     }
 
     @Override
-    protected void onGoogleApiClientReady(GoogleApiClient apiClient, final SingleSubscriber<? super Integer> subscriber) {
+    protected void onMobvoiApiClientReady(MobvoiApiClient apiClient, final SingleSubscriber<? super Integer> subscriber) {
         ResultCallback<DataApi.DeleteDataItemsResult> resultResultCallback = new ResultCallback<DataApi.DeleteDataItemsResult>() {
             @Override
             public void onResult(@NonNull DataApi.DeleteDataItemsResult deleteDataItemsResult) {
@@ -49,10 +47,6 @@ public class DataDeleteItemsSingle extends BaseSingle<Integer> {
             }
         };
 
-        if(filterType == null) {
-            setupWearPendingResult(Wearable.DataApi.deleteDataItems(apiClient, uri), resultResultCallback);
-        } else {
-            setupWearPendingResult(Wearable.DataApi.deleteDataItems(apiClient, uri, filterType), resultResultCallback);
-        }
+        setupWearPendingResult(Wearable.DataApi.deleteDataItems(apiClient, uri), resultResultCallback);
     }
 }
